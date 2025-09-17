@@ -416,7 +416,7 @@ export const initDatabase = (): Promise<void> => {
       // 插入默认管理员用户
       db.run(`
         INSERT OR IGNORE INTO users (username, password, email, role) 
-        VALUES ('admin', 'admin123', 'admin@wms.com', 'admin')
+        VALUES ('admin', '123456', 'admin@wms.com', 'admin')
       `, (err) => {
         if (err) console.error('插入默认用户失败:', err);
         else console.log('默认用户创建成功');
