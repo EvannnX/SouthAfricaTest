@@ -5,7 +5,6 @@ import axios from 'axios'
 const API_BASE_URL = 'https://web-production-7a257.up.railway.app/api'
 
 console.log('API_BASE_URL:', API_BASE_URL) // 调试日志
-console.log('环境变量 VITE_API_URL:', import.meta.env.VITE_API_URL) // 调试环境变量
 
 // 创建axios实例
 const api = axios.create({
