@@ -136,7 +136,7 @@ router.get('/top-selling-items', (req, res) => {
   if (end_date) { conds.push('DATE(so.created_at) <= DATE(?)'); params.push(end_date); }
   if (!start_date && !end_date) conds.push(`so.created_at >= DATE('now','-30 days')`);
 
-  // 简化查询，确保兼容性
+  // 修复查询，确保商品信息正确关联
   const sql = `
     SELECT 
       i.code, i.name, i.unit,
@@ -146,10 +146,11 @@ router.get('/top-selling-items', (req, res) => {
       SUM(soi.quantity * soi.unit_price * 0.4) as total_profit,
       40 as avg_margin
     FROM sales_order_items soi
-    LEFT JOIN items i ON soi.item_id = i.id
-    LEFT JOIN sales_orders so ON soi.order_id = so.id
-    WHERE ${conds.join(' AND ')} AND soi.quantity > 0
+    INNER JOIN items i ON soi.item_id = i.id
+    INNER JOIN sales_orders so ON soi.order_id = so.id
+    WHERE ${conds.join(' AND ')} AND soi.quantity > 0 AND i.name IS NOT NULL
     GROUP BY soi.item_id, i.code, i.name, i.unit
+    HAVING total_sales > 0
     ORDER BY total_sales DESC
     LIMIT ?
   `;
