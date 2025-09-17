@@ -140,14 +140,14 @@ router.get('/top-selling-items', (req, res) => {
     SELECT 
       i.code, i.name, i.unit,
       SUM(soi.quantity) as total_quantity,
-      SUM(soi.total_price) as total_sales,
-      SUM(soi.total_cost) as total_cost,
-      SUM(soi.total_price - soi.total_cost) as total_profit,
-      AVG((soi.total_price - soi.total_cost) / NULLIF(soi.total_price,0) * 100) as avg_margin
+      SUM(COALESCE(soi.total_price, soi.amount, soi.quantity * soi.unit_price)) as total_sales,
+      SUM(COALESCE(soi.total_cost, soi.quantity * soi.unit_cost, soi.quantity * soi.unit_price * 0.6)) as total_cost,
+      SUM(COALESCE(soi.total_price - soi.total_cost, soi.amount - soi.quantity * soi.unit_price * 0.6)) as total_profit,
+      AVG(COALESCE((soi.total_price - soi.total_cost) / NULLIF(soi.total_price,0) * 100, 40)) as avg_margin
     FROM sales_order_items soi
     LEFT JOIN items i ON soi.item_id = i.id
     LEFT JOIN sales_orders so ON soi.order_id = so.id
-    WHERE ${conds.join(' AND ')}
+    WHERE ${conds.join(' AND ')} AND soi.quantity > 0
     GROUP BY soi.item_id, i.code, i.name, i.unit
     ORDER BY total_sales DESC
     LIMIT ?
