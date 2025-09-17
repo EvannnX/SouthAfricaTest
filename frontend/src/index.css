@@ -1,0 +1,341 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.ant-layout {
+  min-height: 100vh;
+}
+
+.ant-layout-content {
+  padding: 16px;
+  background: #f0f2f5;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* 仪表板优化样式 */
+.dashboard-section {
+  margin-bottom: 20px;
+}
+
+.dashboard-section h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 4px solid #1890ff;
+}
+
+/* 统计卡片优化 */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 16px;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 13px;
+}
+
+.profit-positive {
+  color: #52c41a;
+}
+
+.profit-negative {
+  color: #ff4d4f;
+}
+
+/* 表格容器优化 */
+.table-container {
+  background: white;
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+/* 表格样式优化 */
+.table-container .ant-table {
+  font-size: 12px;
+}
+
+.table-container .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+  padding: 8px 6px;
+  font-size: 13px;
+}
+
+.table-container .ant-table-tbody > tr > td {
+  padding: 8px 6px;
+  font-size: 12px;
+}
+
+.table-container .ant-table-pagination {
+  margin: 16px 0 0 0;
+}
+
+/* 表单容器优化 */
+.form-container {
+  background: white;
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 登录页面样式 */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-form {
+  width: 400px;
+  max-width: 90vw;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 32px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 图表容器优化 */
+.chart-container {
+  background: white;
+  border-radius: 6px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 16px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 12px;
+  }
+  
+  .page-header h1 {
+    font-size: 18px;
+  }
+  
+  .table-container {
+    padding: 12px;
+  }
+  
+  .table-container .ant-table-thead > tr > th,
+  .table-container .ant-table-tbody > tr > td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+  
+  .dashboard-section h3 {
+    font-size: 14px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-layout-content {
+    padding: 8px;
+  }
+  
+  .stats-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .table-container .ant-table-thead > tr > th,
+  .table-container .ant-table-tbody > tr > td {
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+}
+
+/* 紧凑型按钮样式 */
+.compact-btn {
+  padding: 2px 6px;
+  font-size: 11px;
+  height: auto;
+  line-height: 1.2;
+}
+
+/* 状态标签样式 */
+.status-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status-active {
+  background: #f6ffed;
+  color: #52c41a;
+  border: 1px solid #b7eb8f;
+}
+
+.status-inactive {
+  background: #fff2e8;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+/* 库存预警样式 */
+.stock-normal {
+  background: #f6ffed;
+  color: #52c41a;
+}
+
+.stock-low {
+  background: #fffbe6;
+  color: #faad14;
+}
+
+.stock-out {
+  background: #fff2f0;
+  color: #ff4d4f;
+}
+
+.stock-high {
+  background: #f9f0ff;
+  color: #722ed1;
+}
+
+/* POS页面专用样式 */
+.pos-product-option {
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.pos-product-option:last-child {
+  border-bottom: none;
+}
+
+.pos-product-option:hover {
+  background-color: #f5f5f5 !important;
+}
+
+.pos-product-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #262626;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: 1.4;
+}
+
+.pos-product-name-secondary {
+  color: #8c8c8c;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+.pos-product-price {
+  color: #1890ff;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+/* 购物车表格优化 */
+.pos-cart-table .ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 8px;
+  font-size: 13px;
+}
+
+.pos-cart-table .ant-table-tbody > tr > td {
+  padding: 12px 8px;
+  vertical-align: middle;
+}
+
+.pos-cart-table .ant-input-number {
+  font-size: 13px;
+}
+
+/* 结算选项卡片 */
+.settlement-options {
+  border: 1px solid #e8f4fd;
+  background: linear-gradient(to bottom, #ffffff 0%, #f8fcff 100%);
+}
+
+.settlement-options .ant-card-head {
+  background: linear-gradient(to right, #e6f7ff 0%, #f0f9ff 100%);
+  border-bottom: 1px solid #bae7ff;
+}
+
+.settlement-options .ant-card-head-title {
+  color: #0050b3;
+  font-weight: 600;
+}
+
+/* 固定结算栏优化 */
+.fixed-checkout-panel {
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e8e8e8;
+}
+
+.fixed-checkout-panel .ant-card-body {
+  padding: 16px !important;
+}
+
+/* 商品选择下拉框宽度限制 */
+.ant-select-dropdown .ant-select-item {
+  padding: 8px 12px;
+}
+
+.ant-select-dropdown .ant-select-item-option-content {
+  display: block;
+  overflow: hidden;
+} 

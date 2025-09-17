@@ -1,0 +1,62 @@
+{
+  "deployment_options": {
+    "recommended": {
+      "name": "阿里云轻量应用服务器",
+      "specs": "2核4G",
+      "cost": "约￥24/月",
+      "steps": [
+        "1. 访问 https://ecs.console.aliyun.com/",
+        "2. 选择轻量应用服务器",
+        "3. 选择Ubuntu 20.04系统",
+        "4. 配置规格: 2核4G",
+        "5. 设置密码并购买",
+        "6. 上传项目文件",
+        "7. 运行部署脚本"
+      ]
+    },
+    "budget": {
+      "name": "腾讯云轻量服务器",
+      "specs": "1核2G",
+      "cost": "约￥12/月",
+      "steps": [
+        "1. 访问 https://console.cloud.tencent.com/lighthouse",
+        "2. 选择轻量应用服务器",
+        "3. 选择Ubuntu系统镜像",
+        "4. 配置1核2G规格",
+        "5. 购买并配置"
+      ]
+    },
+    "free": {
+      "name": "免费云平台组合",
+      "specs": "有限制但免费",
+      "cost": "免费",
+      "platforms": {
+        "frontend": "Vercel (推荐)",
+        "backend": "Railway / Render",
+        "database": "SQLite文件"
+      }
+    }
+  },
+  "domain_providers": {
+    "cheap": {
+      "name": "Namecheap",
+      "cost": "$8-12/年",
+      "url": "https://www.namecheap.com"
+    },
+    "popular": {
+      "name": "GoDaddy", 
+      "cost": "$12-20/年",
+      "url": "https://www.godaddy.com"
+    },
+    "free_dns": {
+      "name": "Cloudflare",
+      "cost": "免费DNS服务",
+      "url": "https://www.cloudflare.com"
+    }
+  },
+  "quick_commands": {
+    "local_network": "./start-network.sh",
+    "production_build": "./deploy-production.sh",
+    "docker_deploy": "cd deploy && docker-compose up -d"
+  }
+}
