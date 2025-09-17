@@ -75,8 +75,8 @@ const Purchases: React.FC = () => {
       setSuppliers(sRes.data.data)
       setWarehouses(wRes.data)
       setItems(iRes.data.data)
-    } catch {
-      // 忽略
+    } catch (error) {
+      console.error('获取基础数据失败:', error)
     }
   }
 
@@ -91,9 +91,11 @@ const Purchases: React.FC = () => {
       const res = await purchasesAPI.getPurchaseOrders(params)
       setOrders(res.data.data)
       setPagination(prev => ({ ...prev, total: res.data.total }))
-    } catch {
+    } catch (error) {
       message.error('获取采购订单失败')
-    } finally { setLoading(false) }
+    } finally { 
+      setLoading(false) 
+    }
   }
 
   const handleSubmit = async () => {
@@ -115,7 +117,13 @@ const Purchases: React.FC = () => {
   }
 
   const handleDelete = async (id: number) => {
-    try { await purchasesAPI.deletePurchaseOrder(id); message.success('删除成功'); fetchOrders() } catch { message.error('删除失败') }
+    try { 
+      await purchasesAPI.deletePurchaseOrder(id)
+      message.success('删除成功')
+      fetchOrders() 
+    } catch (error) { 
+      message.error('删除失败') 
+    }
   }
 
   const openEdit = (record?: PurchaseOrder) => {
