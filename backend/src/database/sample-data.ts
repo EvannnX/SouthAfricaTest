@@ -67,32 +67,33 @@ export const insertSampleData = async (): Promise<void> => {
       else console.log('库存数据插入成功');
     });
 
-    // 插入一些示例销售订单
+    // 插入一些示例销售订单（使用正确的商品ID）
     const sampleOrders = [
-      { id: 1, order_number: 'SO20250917001', customer_id: 1, total_amount: 3500.00, status: 'completed' },
-      { id: 2, order_number: 'SO20250917002', customer_id: 2, total_amount: 7000.00, status: 'completed' },
-      { id: 3, order_number: 'SO20250917003', customer_id: 3, total_amount: 1800.00, status: 'pending' },
-      { id: 4, order_number: 'SO20250917004', customer_id: 4, total_amount: 2800.00, status: 'completed' },
-      { id: 5, order_number: 'SO20250917005', customer_id: 5, total_amount: 600.00, status: 'completed' }
+      { id: 1, order_number: 'SO20250917001', customer_id: 1, total_amount: 2899.00, tax_amount: 434.85, status: 'completed' },
+      { id: 2, order_number: 'SO20250917002', customer_id: 2, total_amount: 6798.00, tax_amount: 1019.70, status: 'completed' },
+      { id: 3, order_number: 'SO20250917003', customer_id: 1, total_amount: 3599.00, tax_amount: 539.85, status: 'pending' },
+      { id: 4, order_number: 'SO20250917004', customer_id: 2, total_amount: 2399.00, tax_amount: 359.85, status: 'completed' },
+      { id: 5, order_number: 'SO20250917005', customer_id: 1, total_amount: 3199.00, tax_amount: 479.85, status: 'completed' }
     ];
 
     sampleOrders.forEach((order, index) => {
       setTimeout(() => {
-        db.run(`INSERT OR IGNORE INTO sales_orders (id, order_number, customer_id, total_amount, status, order_date, created_by) VALUES 
-          (?, ?, ?, ?, ?, datetime('now', '-${index} days'), 1)
-        `, [order.id, order.order_number, order.customer_id, order.total_amount, order.status], (err) => {
-          if (err) console.error(`插入销售订单${order.id}失败:`, err);
+        db.run(`INSERT OR IGNORE INTO sales_orders (order_number, customer_id, total_amount, tax_amount, discount_amount, status, order_date, created_by) VALUES 
+          (?, ?, ?, ?, 0, ?, datetime('now', '-${index} days'), 1)
+        `, [order.order_number, order.customer_id, order.total_amount, order.tax_amount, order.status], (err) => {
+          if (err) console.error(`插入销售订单${order.order_number}失败:`, err);
+          else console.log(`销售订单${order.order_number}插入成功`);
         });
       }, index * 100);
     });
 
-    // 插入销售订单明细
+    // 插入销售订单明细（使用正确的商品ID和价格）
     const orderItems = [
-      { order_id: 1, item_id: 1, quantity: 1, unit_price: 3500.00, amount: 3500.00 },
-      { order_id: 2, item_id: 1, quantity: 2, unit_price: 3500.00, amount: 7000.00 },
-      { order_id: 3, item_id: 3, quantity: 1, unit_price: 1800.00, amount: 1800.00 },
-      { order_id: 4, item_id: 4, quantity: 1, unit_price: 2800.00, amount: 2800.00 },
-      { order_id: 5, item_id: 5, quantity: 1, unit_price: 600.00, amount: 600.00 }
+      { order_id: 1, item_id: 1, quantity: 1, unit_price: 2899.00, amount: 2899.00 }, // 格力空调
+      { order_id: 2, item_id: 1, quantity: 2, unit_price: 2899.00, amount: 5798.00 }, // 格力空调 x2
+      { order_id: 3, item_id: 2, quantity: 1, unit_price: 3599.00, amount: 3599.00 }, // 海信电视
+      { order_id: 4, item_id: 3, quantity: 1, unit_price: 2399.00, amount: 2399.00 }, // 小天鹅洗衣机
+      { order_id: 5, item_id: 4, quantity: 1, unit_price: 3199.00, amount: 3199.00 }  // 美的冰箱
     ];
 
     orderItems.forEach((item, index) => {
@@ -101,13 +102,51 @@ export const insertSampleData = async (): Promise<void> => {
           (?, ?, ?, ?, 0, ?)
         `, [item.order_id, item.item_id, item.quantity, item.unit_price, item.amount], (err) => {
           if (err) console.error(`插入订单明细失败:`, err);
+          else console.log(`订单${item.order_id}明细插入成功`);
         });
-      }, index * 150);
+      }, (index + 10) * 100);
+    });
+
+    // 插入采购订单示例数据
+    const purchaseOrders = [
+      { order_number: 'PO20250917001', supplier_id: 1, total_amount: 44000.00, tax_amount: 6600.00, status: 'completed' },
+      { order_number: 'PO20250917002', supplier_id: 2, total_amount: 66000.00, tax_amount: 9900.00, status: 'completed' },
+      { order_number: 'PO20250917003', supplier_id: 1, total_amount: 36000.00, tax_amount: 5400.00, status: 'pending' }
+    ];
+
+    purchaseOrders.forEach((order, index) => {
+      setTimeout(() => {
+        db.run(`INSERT OR IGNORE INTO purchase_orders (order_number, supplier_id, total_amount, tax_amount, status, order_date, created_by) VALUES 
+          (?, ?, ?, ?, ?, datetime('now', '-${index + 2} days'), 1)
+        `, [order.order_number, order.supplier_id, order.total_amount, order.tax_amount, order.status], (err) => {
+          if (err) console.error(`插入采购订单${order.order_number}失败:`, err);
+          else console.log(`采购订单${order.order_number}插入成功`);
+        });
+      }, (index + 15) * 100);
+    });
+
+    // 插入采购订单明细
+    const purchaseItems = [
+      { order_id: 1, item_id: 1, quantity: 20, unit_price: 2200.00, amount: 44000.00 }, // 格力空调采购
+      { order_id: 2, item_id: 2, quantity: 15, unit_price: 2800.00, amount: 42000.00 }, // 海信电视采购
+      { order_id: 2, item_id: 4, quantity: 10, unit_price: 2400.00, amount: 24000.00 }, // 美的冰箱采购
+      { order_id: 3, item_id: 3, quantity: 20, unit_price: 1800.00, amount: 36000.00 }  // 小天鹅洗衣机采购
+    ];
+
+    purchaseItems.forEach((item, index) => {
+      setTimeout(() => {
+        db.run(`INSERT OR IGNORE INTO purchase_order_items (order_id, item_id, quantity, unit_price, amount) VALUES 
+          (?, ?, ?, ?, ?)
+        `, [item.order_id, item.item_id, item.quantity, item.unit_price, item.amount], (err) => {
+          if (err) console.error(`插入采购订单明细失败:`, err);
+          else console.log(`采购订单${item.order_id}明细插入成功`);
+        });
+      }, (index + 20) * 100);
     });
 
     setTimeout(() => {
       console.log('✅ 示例数据插入完成！');
       resolve();
-    }, 2000);
+    }, 5000); // 增加超时时间确保所有数据都插入完成
   });
 };
