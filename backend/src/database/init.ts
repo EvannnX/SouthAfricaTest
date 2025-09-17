@@ -525,6 +525,61 @@ if (require.main === module) {
       console.log('数据库初始化成功！');
       // 在生产环境中插入示例数据
       if (process.env.NODE_ENV === 'production') {
+        // 强制插入订单数据
+        setTimeout(() => {
+          console.log('开始插入订单数据...');
+          
+          // 插入销售订单
+          db.run(`INSERT OR REPLACE INTO sales_orders (id, order_number, customer_id, total_amount, tax_amount, discount_amount, status, order_date, created_by) VALUES 
+            (1, 'SO-2025-001', 1, 2899.00, 434.85, 0, 'completed', '2025-09-15', 1),
+            (2, 'SO-2025-002', 2, 5798.00, 869.70, 100, 'completed', '2025-09-16', 1),
+            (3, 'SO-2025-003', 1, 3599.00, 539.85, 0, 'pending', '2025-09-17', 1),
+            (4, 'SO-2025-004', 2, 2399.00, 359.85, 50, 'completed', '2025-09-14', 1),
+            (5, 'SO-2025-005', 1, 3199.00, 479.85, 0, 'completed', '2025-09-13', 1)
+          `, (err) => {
+            if (err) console.error('插入销售订单失败:', err);
+            else console.log('销售订单插入成功');
+          });
+
+          // 插入采购订单
+          db.run(`INSERT OR REPLACE INTO purchase_orders (id, order_number, supplier_id, total_amount, tax_amount, status, order_date, created_by) VALUES 
+            (1, 'PO-2025-001', 1, 44000.00, 6600.00, 'completed', '2025-09-10', 1),
+            (2, 'PO-2025-002', 2, 66000.00, 9900.00, 'completed', '2025-09-11', 1),
+            (3, 'PO-2025-003', 1, 36000.00, 5400.00, 'pending', '2025-09-12', 1)
+          `, (err) => {
+            if (err) console.error('插入采购订单失败:', err);
+            else console.log('采购订单插入成功');
+          });
+
+          // 插入销售订单明细
+          setTimeout(() => {
+            db.run(`INSERT OR REPLACE INTO sales_order_items (order_id, item_id, quantity, unit_price, discount, amount) VALUES 
+              (1, 1, 1, 2899.00, 0, 2899.00),
+              (2, 1, 2, 2899.00, 50, 5748.00),
+              (3, 2, 1, 3599.00, 0, 3599.00),
+              (4, 3, 1, 2399.00, 50, 2349.00),
+              (5, 4, 1, 3199.00, 0, 3199.00)
+            `, (err) => {
+              if (err) console.error('插入销售订单明细失败:', err);
+              else console.log('销售订单明细插入成功');
+            });
+          }, 500);
+
+          // 插入采购订单明细
+          setTimeout(() => {
+            db.run(`INSERT OR REPLACE INTO purchase_order_items (order_id, item_id, quantity, unit_price, amount) VALUES 
+              (1, 1, 20, 2200.00, 44000.00),
+              (2, 2, 15, 2800.00, 42000.00),
+              (2, 4, 10, 2400.00, 24000.00),
+              (3, 3, 20, 1800.00, 36000.00)
+            `, (err) => {
+              if (err) console.error('插入采购订单明细失败:', err);
+              else console.log('采购订单明细插入成功');
+            });
+          }, 1000);
+          
+        }, 2000);
+        
         import('./sample-data').then(({ insertSampleData }) => {
           return insertSampleData();
         }).then(() => {
