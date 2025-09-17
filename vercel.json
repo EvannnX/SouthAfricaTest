@@ -19,7 +19,9 @@
       "dest": "/frontend/$1"
     }
   ],
-  "env": {
-    "VITE_API_URL": "https://web-production-7a257.up.railway.app"
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://web-production-7a257.up.railway.app"
+    }
   }
 }

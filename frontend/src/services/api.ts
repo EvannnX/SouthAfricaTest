@@ -1,12 +1,11 @@
 import { message } from 'antd'
 import axios from 'axios'
 
-// 优先使用环境变量，否则使用代理路径
-const API_BASE_URL = import.meta.env.VITE_API_URL 
-  ? `${import.meta.env.VITE_API_URL}/api`
-  : '/api'
+// 直接使用Railway后端URL（临时修复）
+const API_BASE_URL = 'https://web-production-7a257.up.railway.app/api'
 
 console.log('API_BASE_URL:', API_BASE_URL) // 调试日志
+console.log('环境变量 VITE_API_URL:', import.meta.env.VITE_API_URL) // 调试环境变量
 
 // 创建axios实例
 const api = axios.create({
