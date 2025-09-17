@@ -122,7 +122,7 @@ const MultiUnitManager: React.FC<MultiUnitManagerProps> = ({
       title: '状态',
       dataIndex: 'is_base_unit',
       key: 'is_base_unit',
-      render: (isBaseUnit: boolean, record: Unit, index: number) => (
+      render: (isBaseUnit: boolean, _record: Unit, index: number) => (
         <Space>
           {isBaseUnit ? (
             <Tag color="green">基本单位</Tag>

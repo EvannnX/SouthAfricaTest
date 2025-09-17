@@ -59,7 +59,7 @@ const Suppliers: React.FC = () => {
       const params = {
         page: pagination.current,
         pageSize: pagination.pageSize,
-        ...Object.fromEntries(Object.entries(searchFilters).filter(([key, v]) => v !== ''))
+        ...Object.fromEntries(Object.entries(searchFilters).filter(([, v]) => v !== ''))
       }
       const response = await suppliersAPI.getSuppliers(params)
       setSuppliers(response.data.data)

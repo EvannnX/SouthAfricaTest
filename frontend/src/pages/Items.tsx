@@ -84,13 +84,13 @@ const Items: React.FC = () => {
   })
   
   // 新增状态管理
-  const [productImages, setProductImages] = useState<ProductImage[]>([])
-  const [barcodes, setBarcodes] = useState<Barcode[]>([])
-  const [units, setUnits] = useState<Unit[]>([])
-  const [priceLevels, setPriceLevels] = useState<PriceLevel[]>([])
-  const [supplierPrices, setSupplierPrices] = useState<SupplierPrice[]>([])
-  const [categories, setCategories] = useState<string[]>([])
-  const [activeTab, setActiveTab] = useState('basic')
+  // const [productImages, setProductImages] = useState<ProductImage[]>([])
+  // const [barcodes, setBarcodes] = useState<Barcode[]>([])
+  // const [units, setUnits] = useState<Unit[]>([])
+  // const [priceLevels, setPriceLevels] = useState<PriceLevel[]>([])
+  // const [supplierPrices, setSupplierPrices] = useState<SupplierPrice[]>([])
+  // const [categories, setCategories] = useState<string[]>([])
+  // const [activeTab, setActiveTab] = useState('basic')
 
   useEffect(() => {
     fetchItems()

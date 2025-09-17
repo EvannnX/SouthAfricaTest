@@ -30,7 +30,7 @@ const POS: React.FC = () => {
   const [payForm] = Form.useForm()
   const [basicForm] = Form.useForm()
   const [companyForm] = Form.useForm()
-  const [loading, setLoading] = useState(false)
+  // const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<OrderMode>('pos')
   
   // 结算选项状态
@@ -336,7 +336,7 @@ const POS: React.FC = () => {
                 return (
                   item.code.toLowerCase().includes(searchText) ||
                   item.name.toLowerCase().includes(searchText) ||
-                  (item.en_name && item.en_name.toLowerCase().includes(searchText))
+                  (item.name_en && item.name_en.toLowerCase().includes(searchText))
                 )
               }}
               onSelect={(val)=> addItem(Number(val))}

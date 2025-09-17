@@ -114,7 +114,7 @@ const Sales: React.FC = () => {
       const params = {
         page: pagination.current,
         pageSize: pagination.pageSize,
-        ...Object.fromEntries(Object.entries(searchFilters).filter(([key, v]) => v !== ''))
+        ...Object.fromEntries(Object.entries(searchFilters).filter(([, v]) => v !== ''))
       }
       const response = await salesAPI.getSalesOrders(params)
       setOrders(response.data.data)
@@ -662,7 +662,7 @@ const Sales: React.FC = () => {
                             precision={2} 
                             style={{ width: '100%' }}
                             formatter={(value) => `¥ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={(value) => value!.replace(/¥\s?|(,*)/g, '')}
+                            parser={(value) => Number(value!.replace(/¥\s?|(,*)/g, ''))}
                             onChange={() => {
                               // 触发表单重新计算
                               form.validateFields([['items', name, 'quantity']])
