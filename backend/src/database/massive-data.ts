@@ -63,11 +63,18 @@ export const insertMassiveOrderData = async (): Promise<void> => {
           }
           
           setTimeout(() => {
+            const finalAmount = totalAmount + taxAmount - discountAmount;
+            const totalCost = Math.round(totalAmount * 0.6); // 成本60%
+            const grossProfit = finalAmount - totalCost;
+            const profitMargin = finalAmount > 0 ? Math.round((grossProfit / finalAmount) * 100) : 0;
+            
             db.run(`INSERT OR IGNORE INTO sales_orders (order_no, customer_id, warehouse_id, order_date, 
-                     total_amount, tax_amount, discount_amount, status, created_by, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
+                     total_amount, discount_amount, final_amount, paid_amount, total_cost, gross_profit, 
+                     profit_margin, payment_status, status, remarks, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
               [orderNo, customerId, warehouseId, orderDateTime.toISOString().split('T')[0], 
-               totalAmount, taxAmount, discountAmount, status],
+               totalAmount, discountAmount, finalAmount, finalAmount, totalCost, grossProfit, 
+               profitMargin, 'paid', status, 'Demo数据-月销100万店铺'],
               (err) => {
                 if (err) console.error(`销售订单 ${orderNo} 插入失败:`, err);
                 else if (orderCount % 200 === 0) console.log(`已生成 ${orderCount} 个订单，累计收入 ¥${Math.floor(totalRevenue).toLocaleString()}`);
@@ -115,9 +122,10 @@ export const insertMassiveOrderData = async (): Promise<void> => {
         
         setTimeout(() => {
           db.run(`INSERT OR IGNORE INTO purchase_orders (order_no, supplier_id, warehouse_id, order_date, 
-                   total_amount, tax_amount, status, created_by, created_at, updated_at) 
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))`,
-            [orderNo, supplierId, warehouseId, orderDate.toISOString().split('T')[0], amount, taxAmount, status],
+                   total_amount, status, remarks, created_at, updated_at) 
+                   VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+            [orderNo, supplierId, warehouseId, orderDate.toISOString().split('T')[0], 
+             amount, status, 'Demo数据-支撑月销100万'],
             (err) => {
               if (err) console.error(`采购订单 ${orderNo} 插入失败:`, err);
               else if (i % 10 === 0) console.log(`已生成 ${i} 个采购订单，累计采购 ¥${Math.floor(totalPurchase).toLocaleString()}`);
@@ -234,9 +242,13 @@ export const insertMassiveOrderData = async (): Promise<void> => {
             const amount = (unitPrice * quantity) - discount;
             
             setTimeout(() => {
-              db.run(`INSERT OR IGNORE INTO sales_order_items (order_id, item_id, quantity, unit_price, discount, amount) 
-                       VALUES (?, ?, ?, ?, ?, ?)`,
-                [orderId, itemId, quantity, unitPrice, discount, amount],
+              const unitCost = Math.round(unitPrice * 0.6); // 成本60%
+              const totalPrice = unitPrice * quantity;
+              const totalCost = unitCost * quantity;
+              
+              db.run(`INSERT OR IGNORE INTO sales_order_items (order_id, item_id, quantity, unit_price, unit_cost, total_price, total_cost, delivered_quantity, created_at) 
+                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+                [orderId, itemId, quantity, unitPrice, unitCost, totalPrice, totalCost, quantity],
                 (err) => {
                   if (err && !err.message.includes('no such table')) {
                     console.error(`销售明细插入失败:`, err);
@@ -261,9 +273,11 @@ export const insertMassiveOrderData = async (): Promise<void> => {
             const amount = unitPrice * quantity;
             
             setTimeout(() => {
-              db.run(`INSERT OR IGNORE INTO purchase_order_items (order_id, item_id, quantity, unit_price, amount) 
-                       VALUES (?, ?, ?, ?, ?)`,
-                [orderId, itemId, quantity, unitPrice, amount],
+              const totalPrice = unitPrice * quantity;
+              
+              db.run(`INSERT OR IGNORE INTO purchase_order_items (order_id, item_id, quantity, unit_price, total_price, received_quantity, created_at) 
+                       VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+                [orderId, itemId, quantity, unitPrice, totalPrice, quantity],
                 (err) => {
                   if (err && !err.message.includes('no such table')) {
                     console.error(`采购明细插入失败:`, err);
