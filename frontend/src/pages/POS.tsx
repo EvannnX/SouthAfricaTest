@@ -5,7 +5,7 @@ import { customersAPI, itemsAPI, paymentsAPI, printAPI, salesAPI } from '../serv
 import { formatCurrencyZAR } from '../utils/currency'
 import { getItemDisplayName, Lang } from '../utils/itemNames'
 
-interface Item { id: number; code: string; name: string; unit: string; sale_price: number }
+interface Item { id: number; code: string; name: string; en_name?: string; unit: string; sale_price: number }
 interface Customer { id: number; name: string }
 
 interface CartLine {
@@ -336,7 +336,7 @@ const POS: React.FC = () => {
                 return (
                   item.code.toLowerCase().includes(searchText) ||
                   item.name.toLowerCase().includes(searchText) ||
-                  (item.name_en && item.name_en.toLowerCase().includes(searchText))
+                  (item.en_name && item.en_name.toLowerCase().includes(searchText))
                 )
               }}
               onSelect={(val)=> addItem(Number(val))}

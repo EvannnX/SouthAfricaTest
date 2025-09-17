@@ -662,7 +662,7 @@ const Sales: React.FC = () => {
                             precision={2} 
                             style={{ width: '100%' }}
                             formatter={(value) => `¥ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            parser={(value) => Number(value!.replace(/¥\s?|(,*)/g, ''))}
+                            parser={(value) => value!.replace(/¥\s?|(,*)/g, '') as any}
                             onChange={() => {
                               // 触发表单重新计算
                               form.validateFields([['items', name, 'quantity']])
