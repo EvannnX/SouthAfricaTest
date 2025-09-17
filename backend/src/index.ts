@@ -19,7 +19,12 @@ const PORT = process.env.PORT || 3001;
 
 // 中间件
 app.use(cors({
-  origin: ['https://south-africa-test.vercel.app', 'http://localhost:3000', 'http://localhost:5173'],
+  origin: [
+    'https://south-africa-test-dvi6.vercel.app',
+    'https://south-africa-test-dvi6-dvi2nhfxn-evannn1218s-projects.vercel.app', 
+    'http://localhost:3000', 
+    'http://localhost:5173'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
