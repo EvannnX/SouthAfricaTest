@@ -584,8 +584,14 @@ if (require.main === module) {
           return insertSampleData();
         }).then(() => {
           console.log('示例数据插入完成！');
+          // 插入大量订单数据
+          return import('./massive-data').then(({ insertMassiveOrderData }) => {
+            return insertMassiveOrderData();
+          });
+        }).then(() => {
+          console.log('大量订单数据插入完成！');
         }).catch((err) => {
-          console.error('示例数据插入失败:', err);
+          console.error('数据插入失败:', err);
         });
       }
     })
