@@ -336,7 +336,7 @@ const POS: React.FC = () => {
                 return (
                   item.code.toLowerCase().includes(searchText) ||
                   item.name.toLowerCase().includes(searchText) ||
-                  (item.en_name && item.en_name.toLowerCase().includes(searchText))
+                  Boolean(item.en_name && item.en_name.toLowerCase().includes(searchText))
                 )
               }}
               onSelect={(val)=> addItem(Number(val))}
