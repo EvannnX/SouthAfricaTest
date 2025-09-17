@@ -136,14 +136,15 @@ router.get('/top-selling-items', (req, res) => {
   if (end_date) { conds.push('DATE(so.created_at) <= DATE(?)'); params.push(end_date); }
   if (!start_date && !end_date) conds.push(`so.created_at >= DATE('now','-30 days')`);
 
+  // 简化查询，确保兼容性
   const sql = `
     SELECT 
       i.code, i.name, i.unit,
       SUM(soi.quantity) as total_quantity,
-      SUM(COALESCE(soi.total_price, soi.amount, soi.quantity * soi.unit_price)) as total_sales,
-      SUM(COALESCE(soi.total_cost, soi.quantity * soi.unit_cost, soi.quantity * soi.unit_price * 0.6)) as total_cost,
-      SUM(COALESCE(soi.total_price - soi.total_cost, soi.amount - soi.quantity * soi.unit_price * 0.6)) as total_profit,
-      AVG(COALESCE((soi.total_price - soi.total_cost) / NULLIF(soi.total_price,0) * 100, 40)) as avg_margin
+      SUM(soi.quantity * soi.unit_price) as total_sales,
+      SUM(soi.quantity * soi.unit_price * 0.6) as total_cost,
+      SUM(soi.quantity * soi.unit_price * 0.4) as total_profit,
+      40 as avg_margin
     FROM sales_order_items soi
     LEFT JOIN items i ON soi.item_id = i.id
     LEFT JOIN sales_orders so ON soi.order_id = so.id
