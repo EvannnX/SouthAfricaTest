@@ -523,7 +523,16 @@ if (require.main === module) {
   initDatabase()
     .then(() => {
       console.log('数据库初始化成功！');
-      process.exit(0);
+      // 在生产环境中插入示例数据
+      if (process.env.NODE_ENV === 'production') {
+        import('./sample-data').then(({ insertSampleData }) => {
+          return insertSampleData();
+        }).then(() => {
+          console.log('示例数据插入完成！');
+        }).catch((err) => {
+          console.error('示例数据插入失败:', err);
+        });
+      }
     })
     .catch((err) => {
       console.error('数据库初始化失败:', err);
