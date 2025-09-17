@@ -329,7 +329,7 @@ const POS: React.FC = () => {
               showSearch
               placeholder="快速搜索商品并添加"
               style={{ width: 420 }}
-              filterOption={(input, option)=> {
+              filterOption={(input, option): boolean => {
                 const item = items.find(it => it.id === option?.value)
                 if (!item) return false
                 const searchText = input.toLowerCase()
