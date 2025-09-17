@@ -1,0 +1,58 @@
+#!/bin/bash
+
+echo "🚀 BlueLink 终端上传脚本"
+echo "=========================="
+
+# 检查压缩包是否存在
+if [ ! -f "../bluelink-project.tar.gz" ]; then
+    echo "❌ 压缩包不存在，正在创建..."
+    tar -czf ../bluelink-project.tar.gz --exclude=node_modules --exclude=.git --exclude=dist .
+    echo "✅ 压缩包创建完成"
+fi
+
+echo "📦 压缩包信息："
+ls -lh ../bluelink-project.tar.gz
+
+echo ""
+echo "🎯 终端上传方案："
+echo ""
+echo "方案1: 使用GitHub CLI (推荐)"
+echo "1. 安装GitHub CLI:"
+echo "   curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg"
+echo "   echo \"deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main\" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null"
+echo "   sudo apt update && sudo apt install gh"
+echo ""
+echo "2. 登录GitHub:"
+echo "   gh auth login"
+echo ""
+echo "3. 上传代码:"
+echo "   gh repo create EvannnX/SouthAfricaTest --public --source=. --remote=origin --push"
+echo ""
+echo "方案2: 使用curl上传压缩包"
+echo "1. 解压到临时目录:"
+echo "   mkdir -p /tmp/bluelink-upload"
+echo "   cd /tmp/bluelink-upload"
+echo "   tar -xzf ~/Desktop/南非软件搭建/bluelink-project.tar.gz"
+echo ""
+echo "2. 初始化Git:"
+echo "   git init"
+echo "   git add ."
+echo "   git commit -m \"BlueLink南非销售系统完整功能\""
+echo "   git branch -M main"
+echo "   git remote add origin https://github.com/EvannnX/SouthAfricaTest.git"
+echo ""
+echo "3. 推送代码:"
+echo "   git push -u origin main"
+echo ""
+echo "方案3: 手动解压上传"
+echo "1. 解压压缩包:"
+echo "   tar -xzf ../bluelink-project.tar.gz -C /tmp/bluelink-upload/"
+echo ""
+echo "2. 访问GitHub网页上传:"
+echo "   https://github.com/EvannnX/SouthAfricaTest"
+echo "   上传 /tmp/bluelink-upload/ 中的所有文件"
+echo ""
+echo "💡 推荐使用方案1 (GitHub CLI)，最简单可靠！"
+echo ""
+echo "📁 压缩包位置: ../bluelink-project.tar.gz"
+echo "📁 压缩包大小: $(ls -lh ../bluelink-project.tar.gz | awk '{print $5}')"

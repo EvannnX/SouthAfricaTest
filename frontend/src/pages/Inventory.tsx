@@ -105,7 +105,7 @@ const Inventory: React.FC = () => {
     setLoading(true)
     try {
       const params = Object.fromEntries(
-        Object.entries(searchFilters).filter(([key, v]) => v !== '' && v !== false)
+        Object.entries(searchFilters).filter(([, v]) => v !== '' && v !== false)
       )
       const response = await inventoryAPI.getInventory(params)
       setInventory(response.data)

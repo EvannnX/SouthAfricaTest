@@ -1,9 +1,9 @@
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Form, Input, InputNumber, message, Modal, Select, Space, Table, Tabs, Row, Col } from 'antd'
+import { Button, Form, Input, InputNumber, message, Modal, Select, Space, Table } from 'antd'
 import React, { useEffect, useState } from 'react'
-import BarcodeManager from '../components/BarcodeManager'
-import MultiUnitManager from '../components/MultiUnitManager'
-import ProductImageGallery from '../components/ProductImageGallery'
+// import BarcodeManager from '../components/BarcodeManager'
+// import MultiUnitManager from '../components/MultiUnitManager'
+// import ProductImageGallery from '../components/ProductImageGallery'
 import { itemsAPI } from '../services/api'
 import { getBilingualName } from '../utils/itemNames'
 

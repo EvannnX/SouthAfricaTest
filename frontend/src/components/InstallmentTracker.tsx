@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { paymentsAPI } from '../services/api'
 import { formatCurrencyZAR } from '../utils/currency'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 interface InstallmentPayment {
   id: number
@@ -163,11 +163,11 @@ const InstallmentTracker: React.FC = () => {
                     <Text type="secondary" style={{ fontSize: '12px' }}>
                       到期: {new Date(item.due_date).toLocaleDateString()}
                     </Text>
-                    <Tag color={getStatusColor(item.status)} size="small">
+                    <Tag color={getStatusColor(item.status)}>
                       {getStatusText(item.status)}
                     </Tag>
                     {isOverdue(item.due_date) && (
-                      <Tag color="red" size="small">逾期</Tag>
+                      <Tag color="red">逾期</Tag>
                     )}
                   </div>
                 </div>

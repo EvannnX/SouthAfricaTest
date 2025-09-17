@@ -1,4 +1,4 @@
-import { CloseOutlined, DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EyeOutlined, PlusOutlined } from '@ant-design/icons'
 import { Button, Card, Image, Modal, Space, Upload, message } from 'antd'
 import type { UploadFile, UploadProps } from 'antd'
 import React, { useState } from 'react'

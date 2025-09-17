@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusOutlined, ScanOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Input, Row, Select, Space, Table, Tag, message } from 'antd'
+import { Button, Col, Input, Row, Select, Space, Table, Tag, message } from 'antd'
 import React, { useState } from 'react'
 
 interface Barcode {
@@ -154,7 +154,7 @@ const BarcodeManager: React.FC<BarcodeManagerProps> = ({
       title: '状态',
       dataIndex: 'is_primary',
       key: 'is_primary',
-      render: (isPrimary: boolean, record: Barcode, index: number) => (
+      render: (isPrimary: boolean, _: Barcode, index: number) => (
         <Space>
           {isPrimary ? (
             <Tag color="gold">主条码</Tag>
@@ -175,7 +175,7 @@ const BarcodeManager: React.FC<BarcodeManagerProps> = ({
     {
       title: '操作',
       key: 'action',
-      render: (_: any, record: Barcode, index: number) => (
+      render: (_: any, _record: Barcode, index: number) => (
         !readonly && (
           <Button
             size="small"

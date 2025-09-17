@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Input, InputNumber, Row, Space, Table, Tag, message } from 'antd'
+import { Button, Col, Input, InputNumber, Row, Space, Table, Tag, message } from 'antd'
 import React, { useState } from 'react'
 
 interface Unit {
@@ -109,11 +109,11 @@ const MultiUnitManager: React.FC<MultiUnitManagerProps> = ({
       title: '换算比率',
       dataIndex: 'conversion_rate',
       key: 'conversion_rate',
-      render: (rate: number, record: Unit) => (
+      render: (rate: number, _record: Unit) => (
         <div>
           <span style={{ fontSize: '14px' }}>{rate}</span>
           <div style={{ fontSize: '12px', color: '#666' }}>
-            {getConversionExample(record, baseUnit)}
+            {getConversionExample(_record, baseUnit)}
           </div>
         </div>
       )
