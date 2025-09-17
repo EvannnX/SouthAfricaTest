@@ -10,15 +10,22 @@ const Login: React.FC = () => {
   const dispatch = useDispatch()
 
   const onFinish = async (values: { username: string; password: string }) => {
+    console.log('开始登录:', values) // 调试日志
     setLoading(true)
     try {
+      console.log('发送登录请求...') // 调试日志
       const response = await authAPI.login(values)
+      console.log('登录响应:', response) // 调试日志
       const { token, user } = response.data
       
       dispatch(loginSuccess({ token, user }))
       message.success('登录成功')
+      
+      // 登录成功后跳转到主页
+      window.location.href = '/'
     } catch (error: any) {
-      message.error(error.response?.data?.error || '登录失败')
+      console.error('登录错误:', error) // 调试日志
+      message.error(error.response?.data?.error || error.message || '登录失败')
     } finally {
       setLoading(false)
     }

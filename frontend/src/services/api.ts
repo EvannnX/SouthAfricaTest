@@ -1,7 +1,12 @@
 import { message } from 'antd'
 import axios from 'axios'
 
-const API_BASE_URL = '/api'
+// 优先使用环境变量，否则使用代理路径
+const API_BASE_URL = import.meta.env.VITE_API_URL 
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
+console.log('API_BASE_URL:', API_BASE_URL) // 调试日志
 
 // 创建axios实例
 const api = axios.create({
