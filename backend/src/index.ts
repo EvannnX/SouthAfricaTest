@@ -4,6 +4,7 @@ import { initDatabase } from './database/init';
 import { authenticateToken } from './middleware/auth';
 import authRoutes from './routes/auth';
 import customerRoutes from './routes/customers';
+import dataImportRoutes from './routes/data-import';
 import inventoryRoutes from './routes/inventory';
 import itemRoutes from './routes/items';
 import paymentRoutes from './routes/payments';
@@ -41,6 +42,7 @@ initDatabase().then(() => {
 
 // 路由
 app.use('/api/auth', authRoutes);
+app.use('/api/data-import', authenticateToken, dataImportRoutes);
 app.use('/api/items', authenticateToken, itemRoutes);
 app.use('/api/suppliers', authenticateToken, supplierRoutes);
 app.use('/api/customers', authenticateToken, customerRoutes);
