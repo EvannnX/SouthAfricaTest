@@ -406,12 +406,13 @@ const POS: React.FC = () => {
     // 生成唯一的窗口名称
     const windowName = `pos-window-${Date.now()}`
     
-    // 获取当前页面的完整URL
+    // 使用更简单的方法构建URL
     const currentUrl = window.location.href
-    const baseUrl = currentUrl.split('/').slice(0, -1).join('/')
+    const baseUrl = window.location.origin
     const newPosUrl = `${baseUrl}/pos`
     
     console.log('当前URL:', currentUrl)
+    console.log('基础URL:', baseUrl)
     console.log('新窗口URL:', newPosUrl)
     
     // 打开新的POS窗口
