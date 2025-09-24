@@ -1,4 +1,4 @@
-import { CreditCardOutlined, DesktopOutlined, FileTextOutlined, SearchOutlined, UserOutlined } from '@ant-design/icons'
+import { CreditCardOutlined, DesktopOutlined, FileTextOutlined, SearchOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons'
 import { Button, Card, Col, Form, Input, InputNumber, message, Modal, Radio, Row, Select, Space, Table } from 'antd'
 import React, { useEffect, useMemo, useState } from 'react'
 import { customersAPI, itemsAPI, paymentsAPI, printAPI, salesAPI } from '../services/api'
@@ -37,6 +37,10 @@ const POS: React.FC = () => {
   const [discountAmount, setDiscountAmount] = useState(0)
   const [roundAmount, setRoundAmount] = useState(0)
   const [includeTax, setIncludeTax] = useState(true)
+  
+  // 多客户选择状态
+  const [selectedCustomers, setSelectedCustomers] = useState<number[]>([])
+  const [multiCustomerMode, setMultiCustomerMode] = useState(false)
 
   useEffect(()=>{ fetchBase() }, [])
 
@@ -87,6 +91,22 @@ const POS: React.FC = () => {
   const updateQty = (key: string, qty: number) => { setCart(prev=> prev.map(l=> l.key===key ? { ...l, qty, amount: (l.price * qty * (100 - l.discount))/100 } : l)) }
   const updateDiscount = (key: string, discount: number) => { setCart(prev=> prev.map(l=> l.key===key ? { ...l, discount, amount: (l.price * l.qty * (100 - discount))/100 } : l)) }
   const updatePrice = (key: string, price: number) => { setCart(prev=> prev.map(l=> l.key===key ? { ...l, price, amount: (price * l.qty * (100 - l.discount))/100 } : l)) }
+
+  // 多客户选择处理函数
+  const toggleCustomerSelection = (customerId: number) => {
+    setSelectedCustomers(prev => 
+      prev.includes(customerId) 
+        ? prev.filter(id => id !== customerId)
+        : [...prev, customerId]
+    )
+  }
+  
+  const toggleMultiCustomerMode = () => {
+    setMultiCustomerMode(!multiCustomerMode)
+    if (multiCustomerMode) {
+      setSelectedCustomers([])
+    }
+  }
 
   const totalQty = useMemo(()=> cart.reduce((s,l)=> s + l.qty, 0), [cart])
   const totalAmount = useMemo(()=> cart.reduce((s,l)=> s + l.amount, 0), [cart])
@@ -180,13 +200,61 @@ const POS: React.FC = () => {
   const submitSale = async () => {
     try {
       const values = await payForm.validateFields()
-      const customer_id = basicForm.getFieldValue('customer_id') || null
       const itemsPayload = cart.map(l=> ({ item_id: l.item_id, quantity: l.qty, unit_price: l.price }))
       
       // 使用状态中的值，而不是表单值
       const discount_amount = discountAmount
       const round_amount = roundAmount
       const final_amount_value = finalAmount
+      
+      // 确定客户ID
+      let customer_id = null
+      if (multiCustomerMode && selectedCustomers.length > 0) {
+        // 多客户模式：为每个选中的客户创建订单
+        const promises = selectedCustomers.map(async (customerId) => {
+          const payload = {
+            customer_id: customerId,
+            warehouse_id: 1,
+            order_date: new Date().toISOString().slice(0,10),
+            items: itemsPayload,
+            total_amount: Number(totalAmount.toFixed(2)),
+            discount_amount,
+            round_amount,
+            payment_type: values.payment_type || 'full',
+            payment_info: {
+              payment_method: values.pay_method,
+              received_amount: Number(values.received || final_amount_value),
+              change_amount: Number(values.change || 0)
+            },
+            remarks: `POS开单 - ${values.pay_method} 收款 R ${values.received || final_amount_value}`
+          }
+          return salesAPI.createSalesOrder(payload)
+        })
+        
+        const responses = await Promise.all(promises)
+        message.success(`成功为 ${selectedCustomers.length} 个客户开单`)
+        
+        // 打印所有订单
+        if (values.auto_print !== false) {
+          for (const response of responses) {
+            await printReceipt(response.data.id, values.print_format || 'tvmaster', values.include_tax !== false)
+          }
+        }
+        
+        // 重置状态
+        setCart([])
+        setPayModal(false)
+        setSelectedCustomers([])
+        setMultiCustomerMode(false)
+        payForm.resetFields()
+        setDiscountAmount(0)
+        setRoundAmount(0)
+        setIncludeTax(true)
+        return
+      } else {
+        // 单客户模式
+        customer_id = basicForm.getFieldValue('customer_id') || null
+      }
       
       const payload = {
         customer_id,
@@ -320,11 +388,65 @@ const POS: React.FC = () => {
           <Space wrap>
             <Form form={basicForm} layout="inline">
               <Form.Item name="customer_id" label="客户">
-                <Select allowClear placeholder="选择客户(可空)" style={{ width: 260 }} showSearch filterOption={(i,o)=>String(o?.children||'').toLowerCase().includes(i.toLowerCase())} suffixIcon={<UserOutlined />}>
+                <Select 
+                  allowClear 
+                  placeholder="选择客户(可空)" 
+                  style={{ width: 260 }} 
+                  showSearch 
+                  filterOption={(i,o)=>String(o?.children||'').toLowerCase().includes(i.toLowerCase())} 
+                  suffixIcon={<UserOutlined />}
+                  disabled={multiCustomerMode}
+                >
                   {customers.map(c=> (<Select.Option key={c.id} value={c.id}>{c.name}</Select.Option>))}
                 </Select>
               </Form.Item>
+              <Form.Item>
+                <Button 
+                  type={multiCustomerMode ? "primary" : "default"}
+                  icon={<TeamOutlined />}
+                  onClick={toggleMultiCustomerMode}
+                >
+                  {multiCustomerMode ? "多客户模式" : "单客户模式"}
+                </Button>
+              </Form.Item>
             </Form>
+            
+            {/* 多客户选择区域 */}
+            {multiCustomerMode && (
+              <div style={{ width: '100%', marginTop: 8 }}>
+                <div style={{ marginBottom: 8, fontSize: 12, color: '#666' }}>
+                  选择客户 ({selectedCustomers.length} 个已选择):
+                </div>
+                <div style={{ 
+                  maxHeight: 120, 
+                  overflowY: 'auto', 
+                  border: '1px solid #d9d9d9', 
+                  borderRadius: 6, 
+                  padding: 8,
+                  backgroundColor: '#fafafa'
+                }}>
+                  {customers.map(customer => (
+                    <div 
+                      key={customer.id}
+                      style={{
+                        display: 'inline-block',
+                        margin: '2px 4px',
+                        padding: '4px 8px',
+                        border: selectedCustomers.includes(customer.id) ? '2px solid #1890ff' : '1px solid #d9d9d9',
+                        borderRadius: 4,
+                        backgroundColor: selectedCustomers.includes(customer.id) ? '#e6f7ff' : 'white',
+                        cursor: 'pointer',
+                        fontSize: 12
+                      }}
+                      onClick={() => toggleCustomerSelection(customer.id)}
+                    >
+                      {customer.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
             <Select
               showSearch
               placeholder="快速搜索商品并添加"
