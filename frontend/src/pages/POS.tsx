@@ -60,6 +60,7 @@ const POS: React.FC = () => {
   const [addCustomerModal, setAddCustomerModal] = useState(false)
   const [addCustomerForm] = Form.useForm()
   const [forceUpdate, setForceUpdate] = useState(0) // 强制更新状态
+  const [openWindows, setOpenWindows] = useState<Window[]>([]) // 跟踪打开的窗口
 
   useEffect(()=>{ fetchBase() }, [])
 
@@ -401,6 +402,58 @@ const POS: React.FC = () => {
     window.open('/pos-display', 'pos-display', 'width=800,height=600')
   }
 
+  const openNewPOSWindow = () => {
+    // 生成唯一的窗口名称
+    const windowName = `pos-window-${Date.now()}`
+    
+    // 打开新的POS窗口
+    const newWindow = window.open('/pos', windowName, 'width=1200,height=800,scrollbars=yes,resizable=yes')
+    
+    if (newWindow) {
+      // 设置窗口标题
+      newWindow.document.title = `POS开单 - ${new Date().toLocaleTimeString()}`
+      
+      // 跟踪打开的窗口
+      setOpenWindows(prev => [...prev, newWindow])
+      
+      // 添加窗口关闭时的提示和清理
+      newWindow.addEventListener('beforeunload', (e) => {
+        e.preventDefault()
+        e.returnValue = '确定要关闭这个开单窗口吗？未保存的数据可能会丢失。'
+      })
+      
+      // 监听窗口关闭事件
+      const checkClosed = setInterval(() => {
+        if (newWindow.closed) {
+          setOpenWindows(prev => prev.filter(w => w !== newWindow))
+          clearInterval(checkClosed)
+        }
+      }, 1000)
+      
+      message.success('新开单窗口已打开')
+    } else {
+      message.error('无法打开新窗口，请检查浏览器弹窗设置')
+    }
+  }
+
+  const closeAllWindows = () => {
+    if (openWindows.length === 0) {
+      message.info('没有打开的窗口')
+      return
+    }
+    
+    const confirmed = window.confirm(`确定要关闭所有 ${openWindows.length} 个POS窗口吗？`)
+    if (confirmed) {
+      openWindows.forEach(window => {
+        if (!window.closed) {
+          window.close()
+        }
+      })
+      setOpenWindows([])
+      message.success('所有窗口已关闭')
+    }
+  }
+
   const printReceipt = async (orderId: number, format: string = 'tvmaster', includeTax: boolean = true) => {
     try {
       const receiptResponse = await printAPI.getReceiptData(orderId, { 
@@ -465,13 +518,34 @@ const POS: React.FC = () => {
   return (
     <div>
       <div className="page-header" style={{ display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, flexWrap:'wrap' }}>
-        <h1>POS 开单（南非兰特）</h1>
+        <div>
+          <h1>POS 开单（南非兰特）</h1>
+          <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
+            当前窗口: {window.name || '主窗口'} | 时间: {new Date().toLocaleTimeString()} | 已打开窗口: {openWindows.length + 1} 个
+          </div>
+        </div>
         <Space wrap>
           <Radio.Group value={mode} onChange={(e)=>setMode(e.target.value)}>
             <Radio.Button value="pos">门店POS</Radio.Button>
             <Radio.Button value="company">公司开单</Radio.Button>
           </Radio.Group>
           <Button icon={<DesktopOutlined />} onClick={openCustomerScreen}>打开客户屏幕</Button>
+          <Button 
+            type="primary" 
+            icon={<FileTextOutlined />} 
+            onClick={openNewPOSWindow}
+          >
+            新开单窗口
+          </Button>
+          {openWindows.length > 0 && (
+            <Button 
+              danger
+              icon={<DesktopOutlined />} 
+              onClick={closeAllWindows}
+            >
+              关闭所有窗口
+            </Button>
+          )}
         </Space>
       </div>
 
