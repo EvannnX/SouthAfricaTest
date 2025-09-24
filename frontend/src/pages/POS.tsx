@@ -41,6 +41,10 @@ const POS: React.FC = () => {
   // 多客户选择状态
   const [selectedCustomers, setSelectedCustomers] = useState<number[]>([])
   const [multiCustomerMode, setMultiCustomerMode] = useState(false)
+  
+  // 手动添加客户状态
+  const [addCustomerModal, setAddCustomerModal] = useState(false)
+  const [addCustomerForm] = Form.useForm()
 
   useEffect(()=>{ fetchBase() }, [])
 
@@ -105,6 +109,48 @@ const POS: React.FC = () => {
     setMultiCustomerMode(!multiCustomerMode)
     if (multiCustomerMode) {
       setSelectedCustomers([])
+    }
+  }
+
+  // 手动添加客户功能
+  const handleAddCustomer = async () => {
+    try {
+      const values = await addCustomerForm.validateFields()
+      
+      const customerData = {
+        name: values.name,
+        contact_person: values.contact_person || '',
+        phone: values.phone || '',
+        email: values.email || '',
+        address: values.address || '',
+        customer_type: values.customer_type || 'retail',
+        payment_terms: values.payment_terms || '现金',
+        status: 'active'
+      }
+      
+      const response = await customersAPI.createCustomer(customerData)
+      const newCustomer = response.data
+      
+      // 更新客户列表
+      setCustomers(prev => [...prev, newCustomer])
+      
+      // 根据当前模式处理新客户
+      if (multiCustomerMode) {
+        // 多客户模式：自动选中新客户
+        setSelectedCustomers(prev => [...prev, newCustomer.id])
+        message.success(`客户 "${newCustomer.name}" 添加成功并已选中`)
+      } else {
+        // 单客户模式：自动选择新客户
+        basicForm.setFieldsValue({ customer_id: newCustomer.id })
+        message.success(`客户 "${newCustomer.name}" 添加成功并已选择`)
+      }
+      
+      // 关闭Modal并重置表单
+      setAddCustomerModal(false)
+      addCustomerForm.resetFields()
+      
+    } catch (error: any) {
+      message.error(error?.response?.data?.error || '添加客户失败')
     }
   }
 
@@ -407,6 +453,15 @@ const POS: React.FC = () => {
                   onClick={toggleMultiCustomerMode}
                 >
                   {multiCustomerMode ? "多客户模式" : "单客户模式"}
+                </Button>
+              </Form.Item>
+              <Form.Item>
+                <Button 
+                  type="dashed"
+                  icon={<UserOutlined />}
+                  onClick={() => setAddCustomerModal(true)}
+                >
+                  添加新客户
                 </Button>
               </Form.Item>
             </Form>
@@ -795,6 +850,99 @@ const POS: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+        </Form>
+      </Modal>
+
+      {/* 添加客户Modal */}
+      <Modal
+        title="添加新客户"
+        open={addCustomerModal}
+        onOk={handleAddCustomer}
+        onCancel={() => {
+          setAddCustomerModal(false)
+          addCustomerForm.resetFields()
+        }}
+        okText="添加客户"
+        cancelText="取消"
+        width={600}
+      >
+        <Form form={addCustomerForm} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="name"
+                label="客户名称"
+                rules={[{ required: true, message: '请输入客户名称' }]}
+              >
+                <Input placeholder="请输入客户名称" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="customer_type"
+                label="客户类型"
+                rules={[{ required: true, message: '请选择客户类型' }]}
+                initialValue="retail"
+              >
+                <Select placeholder="请选择客户类型">
+                  <Select.Option value="retail">零售客户</Select.Option>
+                  <Select.Option value="wholesale">批发客户</Select.Option>
+                  <Select.Option value="corporate">企业客户</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="contact_person"
+                label="联系人"
+              >
+                <Input placeholder="请输入联系人姓名" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="phone"
+                label="联系电话"
+              >
+                <Input placeholder="请输入联系电话" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label="邮箱地址"
+              >
+                <Input placeholder="请输入邮箱地址" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="payment_terms"
+                label="付款条件"
+                initialValue="现金"
+              >
+                <Select placeholder="请选择付款条件">
+                  <Select.Option value="现金">现金</Select.Option>
+                  <Select.Option value="月结30天">月结30天</Select.Option>
+                  <Select.Option value="月结60天">月结60天</Select.Option>
+                  <Select.Option value="月结90天">月结90天</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Form.Item
+            name="address"
+            label="联系地址"
+          >
+            <Input.TextArea rows={3} placeholder="请输入详细联系地址" />
+          </Form.Item>
         </Form>
       </Modal>
     </div>
