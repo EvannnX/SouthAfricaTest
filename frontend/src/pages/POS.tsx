@@ -406,8 +406,16 @@ const POS: React.FC = () => {
     // 生成唯一的窗口名称
     const windowName = `pos-window-${Date.now()}`
     
+    // 获取当前页面的完整URL
+    const currentUrl = window.location.href
+    const baseUrl = currentUrl.split('/').slice(0, -1).join('/')
+    const newPosUrl = `${baseUrl}/pos`
+    
+    console.log('当前URL:', currentUrl)
+    console.log('新窗口URL:', newPosUrl)
+    
     // 打开新的POS窗口
-    const newWindow = window.open('/pos', windowName, 'width=1200,height=800,scrollbars=yes,resizable=yes')
+    const newWindow = window.open(newPosUrl, windowName, 'width=1200,height=800,scrollbars=yes,resizable=yes')
     
     if (newWindow) {
       // 设置窗口标题
