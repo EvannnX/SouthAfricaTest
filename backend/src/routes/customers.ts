@@ -53,7 +53,15 @@ router.post('/', (req, res) => {
         }
         return res.status(500).json({ error: '创建客户失败' });
       }
-      res.status(201).json({ id: this.lastID, message: '客户创建成功' });
+      
+      // 返回完整的客户信息
+      const newCustomerId = this.lastID;
+      db.get('SELECT * FROM customers WHERE id = ?', [newCustomerId], (err, customer) => {
+        if (err) {
+          return res.status(500).json({ error: '获取客户信息失败' });
+        }
+        res.status(201).json(customer);
+      });
     });
 });
 

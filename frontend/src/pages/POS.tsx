@@ -6,7 +6,21 @@ import { formatCurrencyZAR } from '../utils/currency'
 import { getItemDisplayName, Lang } from '../utils/itemNames'
 
 interface Item { id: number; code: string; name: string; en_name?: string; unit: string; sale_price: number }
-interface Customer { id: number; name: string }
+interface Customer { 
+  id: number; 
+  code: string;
+  name: string; 
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  customer_type?: string;
+  credit_limit?: number;
+  payment_terms?: string;
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface CartLine {
   key: string
@@ -141,13 +155,23 @@ const POS: React.FC = () => {
       const response = await customersAPI.createCustomer(customerData)
       const newCustomer = response.data
       
+      console.log('新添加的客户:', newCustomer) // 调试日志
+      
       // 更新客户列表
-      setCustomers(prev => [...prev, newCustomer])
+      setCustomers(prev => {
+        const updated = [...prev, newCustomer]
+        console.log('更新后的客户列表:', updated) // 调试日志
+        return updated
+      })
       
       // 根据当前模式处理新客户
       if (multiCustomerMode) {
         // 多客户模式：自动选中新客户
-        setSelectedCustomers(prev => [...prev, newCustomer.id])
+        setSelectedCustomers(prev => {
+          const updated = [...prev, newCustomer.id]
+          console.log('更新后的选中客户:', updated) // 调试日志
+          return updated
+        })
         message.success(`客户 "${newCustomer.name}" 添加成功并已选中`)
       } else {
         // 单客户模式：自动选择新客户
