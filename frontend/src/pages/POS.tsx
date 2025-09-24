@@ -59,6 +59,7 @@ const POS: React.FC = () => {
   // 手动添加客户状态
   const [addCustomerModal, setAddCustomerModal] = useState(false)
   const [addCustomerForm] = Form.useForm()
+  const [forceUpdate, setForceUpdate] = useState(0) // 强制更新状态
 
   useEffect(()=>{ fetchBase() }, [])
 
@@ -155,14 +156,25 @@ const POS: React.FC = () => {
       const response = await customersAPI.createCustomer(customerData)
       const newCustomer = response.data
       
+      console.log('API响应:', response) // 调试日志
       console.log('新添加的客户:', newCustomer) // 调试日志
+      console.log('当前客户列表:', customers) // 调试日志
       
       // 更新客户列表
       setCustomers(prev => {
         const updated = [...prev, newCustomer]
+        console.log('更新前的客户列表:', prev) // 调试日志
         console.log('更新后的客户列表:', updated) // 调试日志
         return updated
       })
+      
+      // 强制重新渲染
+      setForceUpdate(prev => prev + 1)
+      
+      // 强制重新渲染客户选择下拉框
+      setTimeout(() => {
+        console.log('延迟后的客户列表:', customers) // 调试日志
+      }, 100)
       
       // 根据当前模式处理新客户
       if (multiCustomerMode) {
@@ -469,6 +481,7 @@ const POS: React.FC = () => {
             <Form form={basicForm} layout="inline">
               <Form.Item name="customer_id" label="客户">
                 <Select 
+                  key={forceUpdate}
                   allowClear 
                   placeholder="选择客户(可空)" 
                   style={{ width: 260 }} 
@@ -502,7 +515,7 @@ const POS: React.FC = () => {
             
             {/* 多客户选择区域 */}
             {multiCustomerMode && (
-              <div style={{ width: '100%', marginTop: 8 }}>
+              <div key={forceUpdate} style={{ width: '100%', marginTop: 8 }}>
                 <div style={{ marginBottom: 8, fontSize: 12, color: '#666' }}>
                   选择客户 ({selectedCustomers.length} 个已选择):
                 </div>
