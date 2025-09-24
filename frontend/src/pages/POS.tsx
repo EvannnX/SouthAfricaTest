@@ -221,7 +221,7 @@ const POS: React.FC = () => {
       
       // 自动弹出打印界面
       if (values.auto_print !== false) {
-        await printReceipt(response.data.id, values.print_format || '80mm', values.include_tax !== false)
+        await printReceipt(response.data.id, values.print_format || 'tvmaster', values.include_tax !== false)
       }
       
       setCart([])
@@ -241,7 +241,7 @@ const POS: React.FC = () => {
     window.open('/pos-display', 'pos-display', 'width=800,height=600')
   }
 
-  const printReceipt = async (orderId: number, format: string = '80mm', includeTax: boolean = true) => {
+  const printReceipt = async (orderId: number, format: string = 'tvmaster', includeTax: boolean = true) => {
     try {
       const receiptResponse = await printAPI.getReceiptData(orderId, { 
         format, 
@@ -655,8 +655,9 @@ const POS: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item name="print_format" label="打印格式" initialValue="80mm">
+              <Form.Item name="print_format" label="打印格式" initialValue="tvmaster">
                 <Select>
+                  <Select.Option value="tvmaster">TVmaster格式</Select.Option>
                   <Select.Option value="80mm">80mm小票</Select.Option>
                   <Select.Option value="A4">A4发票</Select.Option>
                   <Select.Option value="A5">A5发票</Select.Option>

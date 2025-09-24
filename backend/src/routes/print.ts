@@ -10,7 +10,7 @@ router.get('/receipt/:orderId', (req, res) => {
   
   // 获取订单信息
   db.get(
-    `SELECT so.*, c.name as customer_name, c.tax_number as customer_tax, 
+    `SELECT so.*, c.name as customer_name, c.phone as customer_phone, 
      w.name as warehouse_name, w.address as warehouse_address
      FROM sales_orders so 
      LEFT JOIN customers c ON so.customer_id = c.id 
@@ -74,6 +74,9 @@ router.post('/generate', (req, res) => {
   if (format === '80mm') {
     // 80mm小票格式
     html = generate80mmReceipt(order, items, payments, include_tax, tax_rate);
+  } else if (format === 'tvmaster') {
+    // TVmaster格式
+    html = generateTVmasterReceipt(order, items, payments, include_tax, tax_rate);
   } else if (format === 'A4') {
     // A4格式
     html = generateA4Receipt(order, items, payments, include_tax, tax_rate);
@@ -89,8 +92,9 @@ router.post('/generate', (req, res) => {
 
 // 生成80mm小票HTML
 function generate80mmReceipt(order: any, items: any[], payments: any[], include_tax: boolean, tax_rate: number) {
-  const tax_amount = include_tax ? (order.final_amount * tax_rate) / (1 + tax_rate) : 0;
-  const net_amount = order.final_amount - tax_amount;
+  const final_amount = order.total_amount || 0;
+  const tax_amount = include_tax ? (final_amount * tax_rate) / (1 + tax_rate) : 0;
+  const net_amount = final_amount - tax_amount;
   
   return `
 <!DOCTYPE html>
@@ -147,22 +151,8 @@ function generate80mmReceipt(order: any, items: any[], payments: any[], include_
     <div class="line"></div>
     <div class="item-line">
         <span>小计:</span>
-        <span>R${order.total_amount.toFixed(2)}</span>
+        <span>R${final_amount.toFixed(2)}</span>
     </div>
-    
-    ${order.discount_amount > 0 ? `
-    <div class="item-line">
-        <span>折扣:</span>
-        <span>-R${order.discount_amount.toFixed(2)}</span>
-    </div>
-    ` : ''}
-    
-    ${order.round_amount !== 0 ? `
-    <div class="item-line">
-        <span>抹零:</span>
-        <span>${order.round_amount > 0 ? '+' : ''}R${order.round_amount.toFixed(2)}</span>
-    </div>
-    ` : ''}
     
     ${include_tax ? `
     <div class="item-line">
@@ -178,7 +168,7 @@ function generate80mmReceipt(order: any, items: any[], payments: any[], include_
     <div class="double-line"></div>
     <div class="item-line bold">
         <span>应付:</span>
-        <span>R${order.final_amount.toFixed(2)}</span>
+        <span>R${final_amount.toFixed(2)}</span>
     </div>
     
     ${payments.map(payment => `
@@ -209,8 +199,9 @@ function generate80mmReceipt(order: any, items: any[], payments: any[], include_
 
 // 生成A4格式HTML
 function generateA4Receipt(order: any, items: any[], payments: any[], include_tax: boolean, tax_rate: number) {
-  const tax_amount = include_tax ? (order.final_amount * tax_rate) / (1 + tax_rate) : 0;
-  const net_amount = order.final_amount - tax_amount;
+  const final_amount = order.total_amount || 0;
+  const tax_amount = include_tax ? (final_amount * tax_rate) / (1 + tax_rate) : 0;
+  const net_amount = final_amount - tax_amount;
   
   return `
 <!DOCTYPE html>
@@ -288,22 +279,8 @@ function generateA4Receipt(order: any, items: any[], payments: any[], include_ta
     <div class="total-section">
         <div class="total-line">
             <span>小计 / Subtotal:</span>
-            <span>R ${order.total_amount.toFixed(2)}</span>
+            <span>R ${final_amount.toFixed(2)}</span>
         </div>
-        
-        ${order.discount_amount > 0 ? `
-        <div class="total-line">
-            <span>折扣 / Discount:</span>
-            <span>-R ${order.discount_amount.toFixed(2)}</span>
-        </div>
-        ` : ''}
-        
-        ${order.round_amount !== 0 ? `
-        <div class="total-line">
-            <span>抹零 / Rounding:</span>
-            <span>${order.round_amount > 0 ? '+' : ''}R ${order.round_amount.toFixed(2)}</span>
-        </div>
-        ` : ''}
         
         ${include_tax ? `
         <div class="total-line">
@@ -318,7 +295,7 @@ function generateA4Receipt(order: any, items: any[], payments: any[], include_ta
         
         <div class="total-line final">
             <span>总计 / Total:</span>
-            <span>R ${order.final_amount.toFixed(2)}</span>
+            <span>R ${final_amount.toFixed(2)}</span>
         </div>
     </div>
     
@@ -363,6 +340,128 @@ function generateA5Receipt(order: any, items: any[], payments: any[], include_ta
     .replace('font-size: 14px;', 'font-size: 12px;')
     .replace('font-size: 24px;', 'font-size: 20px;')
     .replace('font-size: 18px;', 'font-size: 16px;');
+}
+
+// 生成TVmaster格式HTML
+function generateTVmasterReceipt(order: any, items: any[], payments: any[], include_tax: boolean, tax_rate: number) {
+  const final_amount = order.total_amount || 0;
+  const tax_amount = include_tax ? (final_amount * tax_rate) / (1 + tax_rate) : 0;
+  const net_amount = final_amount - tax_amount;
+  
+  // 生成发票号格式 (类似 250919-0003-00005)
+  const now = new Date();
+  const dateStr = now.getFullYear().toString().slice(-2) + 
+                  (now.getMonth() + 1).toString().padStart(2, '0') + 
+                  now.getDate().toString().padStart(2, '0');
+  const invoiceNo = `${dateStr}-0003-${order.id.toString().padStart(5, '0')}`;
+  
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TVmaster 发票</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            width: 72mm; 
+            margin: 0; 
+            padding: 2mm;
+            font-size: 12px;
+            line-height: 1.2;
+            background: white;
+        }
+        .center { text-align: center; }
+        .right { text-align: right; }
+        .bold { font-weight: bold; }
+        .line { border-top: 1px dashed #000; margin: 2px 0; }
+        .double-line { border-top: 2px solid #000; margin: 2px 0; }
+        .dash-line { font-family: 'Courier New', monospace; font-size: 10px; text-align: center; margin: 2px 0; }
+        .company-name { font-size: 16px; font-weight: bold; margin-bottom: 5px; }
+        .invoice-no { font-size: 11px; margin-bottom: 3px; }
+        .time-info { font-size: 10px; margin-bottom: 3px; }
+        .pos-info { display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 5px; }
+        .item-header { display: flex; font-size: 10px; margin-bottom: 3px; }
+        .item-header .no { width: 8%; }
+        .item-header .desc { width: 50%; }
+        .item-header .price { width: 15%; text-align: right; }
+        .item-header .qty { width: 12%; text-align: center; }
+        .item-header .total { width: 15%; text-align: right; }
+        .item-row { display: flex; font-size: 10px; margin-bottom: 2px; }
+        .item-row .no { width: 8%; }
+        .item-row .desc { width: 50%; }
+        .item-row .price { width: 15%; text-align: right; }
+        .item-row .qty { width: 12%; text-align: center; }
+        .item-row .total { width: 15%; text-align: right; }
+        .total-section { margin-top: 5px; }
+        .total-line { display: flex; justify-content: space-between; font-size: 11px; margin: 1px 0; }
+        .total-line.final { font-weight: bold; font-size: 12px; }
+        .contact-info { margin-top: 8px; font-size: 10px; }
+        .footer { margin-top: 8px; font-size: 9px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="center">
+        <div class="company-name">TVmaster</div>
+        <div class="invoice-no">INVOICE NO.${invoiceNo}</div>
+        <div class="time-info">TIME:${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}</div>
+        <div class="pos-info">
+            <span>POS NO.90</span>
+            <span>CASHIER NO.1003</span>
+        </div>
+    </div>
+    
+    <div class="line"></div>
+    
+    <div class="item-header">
+        <div class="no">NO.</div>
+        <div class="desc">Description</div>
+        <div class="price">Price</div>
+        <div class="qty">Qty</div>
+        <div class="total">Total</div>
+    </div>
+    <div class="dash-line">--------------------------------------------</div>
+    
+    ${items.map((item, index) => `
+    <div class="item-row">
+        <div class="no">${index + 1}</div>
+        <div class="desc">${item.item_name || '商品'}</div>
+        <div class="price">${(item.unit_price || 0).toFixed(1)}</div>
+        <div class="qty">${(item.quantity || 0).toFixed(2)}</div>
+        <div class="total">${(item.total_price || 0).toFixed(1)}</div>
+    </div>
+    `).join('')}
+    
+    <div class="dash-line">--------------------------------------------</div>
+    
+    <div class="total-section">
+        <div class="total-line final">
+            <span>Total:R${final_amount.toFixed(2)}</span>
+        </div>
+        ${payments.map(payment => `
+        <div class="total-line">
+            <span>CASH:${payment.received_amount ? payment.received_amount.toFixed(0) : final_amount.toFixed(0)}</span>
+        </div>
+        `).join('')}
+    </div>
+    
+    <div class="contact-info">
+        <div>TEL:071-003-7676</div>
+        <div>860 umgeni road twin center</div>
+    </div>
+    
+    <div class="footer">
+        <div>NO EXCHANGE, NO GUARANTEE, NO REFUND!</div>
+        <div>      THANK YOU FOR SHOPPING</div>
+    </div>
+    
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>`;
 }
 
 // 支付方式文本
