@@ -117,7 +117,16 @@ const POS: React.FC = () => {
     try {
       const values = await addCustomerForm.validateFields()
       
+      // 生成客户编码（如果用户没有输入）
+      let customerCode = values.code
+      if (!customerCode) {
+        // 自动生成客户编码：CUS + 时间戳后6位
+        const timestamp = Date.now().toString().slice(-6)
+        customerCode = `CUS${timestamp}`
+      }
+      
       const customerData = {
+        code: customerCode,
         name: values.name,
         contact_person: values.contact_person || '',
         phone: values.phone || '',
@@ -125,6 +134,7 @@ const POS: React.FC = () => {
         address: values.address || '',
         customer_type: values.customer_type || 'retail',
         payment_terms: values.payment_terms || '现金',
+        credit_limit: values.credit_limit || 0,
         status: 'active'
       }
       
@@ -870,6 +880,15 @@ const POS: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item
+                name="code"
+                label="客户编码"
+                tooltip="留空将自动生成编码"
+              >
+                <Input placeholder="留空自动生成（如：CUS123456）" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
                 name="name"
                 label="客户名称"
                 rules={[{ required: true, message: '请输入客户名称' }]}
@@ -877,6 +896,9 @@ const POS: React.FC = () => {
                 <Input placeholder="请输入客户名称" />
               </Form.Item>
             </Col>
+          </Row>
+
+          <Row gutter={16}>
             <Col span={12}>
               <Form.Item
                 name="customer_type"
@@ -889,6 +911,19 @@ const POS: React.FC = () => {
                   <Select.Option value="wholesale">批发客户</Select.Option>
                   <Select.Option value="corporate">企业客户</Select.Option>
                 </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="credit_limit"
+                label="信用额度 (R)"
+                initialValue={0}
+              >
+                <InputNumber 
+                  min={0} 
+                  style={{ width: '100%' }} 
+                  placeholder="0表示无限制"
+                />
               </Form.Item>
             </Col>
           </Row>
