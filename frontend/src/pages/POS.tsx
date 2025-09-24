@@ -529,7 +529,7 @@ const POS: React.FC = () => {
         <div>
           <h1>POS 开单（南非兰特）</h1>
           <div style={{ fontSize: 12, color: '#666', marginTop: 4 }}>
-            当前窗口: {window.name || '主窗口'} | 时间: {new Date().toLocaleTimeString()} | 已打开窗口: {openWindows.length + 1} 个
+            当前窗口: {window.name || '主窗口'} | 已打开窗口: {openWindows.length + 1} 个
           </div>
         </div>
         <Space wrap>
